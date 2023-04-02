@@ -1,0 +1,33 @@
+Links for working on this!:
+
+CSS/html website templates: https://www.w3schools.com/w3css/w3css_templates.asp 
+    ^of these, the one I liked the most: https://www.w3schools.com/w3css/tryit.asp?filename=tryw3css_templates_webpage&stacked=h 
+
+Dnd 5th edition API: https://www.dnd5eapi.co/ 
+    doesn't require authentication?
+    docs: https://www.dnd5eapi.co/docs/
+    github: https://github.com/5e-bits
+    graphql url for this repository: https://www.dnd5eapi.co/graphql
+    query the endpoint with the Apollo sandbox explorer
+    The repo containing the data lives here: https://github.com/bagelbits/5e-database
+    The repo with the API implementation lives here: https://github.com/bagelbits/5e-srd-api
+    api request formatting tutorial: https://www.howtographql.com/
+
+local storage for info: https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage
+
+use local storage for login info?: https://zellwk.com/blog/frontend-login-system/
+
+node.js: https://www.w3schools.com/nodejs/nodejs_intro.asp
+
+firebase to hold info?: https://firebase.google.com/docs/database
+
+maybe use flutter instead of web?: https://firebase.google.com/docs/database/flutter/start
+
+web setup for firebase: https://firebase.google.com/docs/database/web/start
+    make proj: https://firebase.google.com/docs/web/setup#add-sdk-and-initialize
+
+Dnd info:
+    bugbear: https://www.dndbeyond.com/monsters/16817-bugbear
+    goblin:https://www.dndbeyond.com/monsters/16907-goblin
+
+random # generator C: https://www.includehelp.com/c-programs/generate-random-numbers-within-a-range.aspx
