@@ -27,33 +27,50 @@ typedef struct monster
 }MONSTER;
 
 MONSTER monsters[100];
-int num_monsters;
+int num_monsters = 0;
 
 void display_damage(MONSTER m);
 
 void list_monsters()
 {
+   // printf("first monster numdice: %d \n", monsters[0]-> num_dice);
+    printf("in list monster function montster!\n");
     if(num_monsters == 0)
     {
         printf("no monsters yet!\n");
-                return;
+        return;
     }
+    //int i = num_monsters;
+    
+    /*int i = 0;
+    printf("1!\n");
+    MONSTER  *P;
+    P = monsters[0];
+    printf("2!\n");
+    int index = i+1;
+    printf("3!\n");
+    while(P!= NULL)
+    {
+        printf("Monster #%d: %s\n", index, P -> monster_name);
+        P++;
+    }*/
     /*if (monsters[0]==NULL)
     {
         printf("no monsters yet!\n");
         return;
     }*/
     int i = 0;
-    int num_monster;
-    for(i = 0; i< num_monster; i++)
+    for(i = 0; i < num_monsters; i++)
     {
-        printf("Monster #%d: %s\n", (i+1), monsters[i].monster_name);
+        int index = i+1;
+        printf("Monster #%d: %s\n", index, monsters[i].monster_name);
     }
+    
     printf("Which would you like to display damage for (pick a number):\n");
     fpurge(stdin);
     int nm;
 	scanf("%d", &nm);
-    num_monster = nm-1;
+    int num_monster = nm-1;
     if(num_monster>num_monsters)
     {
         printf("no monsters @ #%d\n ", num_monster);
@@ -68,10 +85,11 @@ void list_monsters()
 
 void display_damage(MONSTER m)
 {
-    int lower = 1, upper = 20, min = 1, max = m.type_of_dice, i, dmg;
+    int lower = 1, upper = 20, min = 1, max = m.type_of_dice, i = 0, dmg = 0;
     int d20roll = (rand() % (upper - lower +1)) + lower;
-    int mini_crit = 
-    if(((m.melee_weapon_attack)+(d20roll)) > (party_ac + 10))
+    printf("you rolled a %d\n", d20roll);
+    //int mini_crit = ?;
+    if((((m.melee_weapon_attack))+(d20roll)) > (party_ac + 10))
     {
         //if it exceeds party's ac by 10, roll max dmg
         dmg = (((m.type_of_dice)*(m.num_dice)) + m.add_to_attack);
@@ -80,10 +98,11 @@ void display_damage(MONSTER m)
     }
     else if(((m.melee_weapon_attack)+(d20roll)) > party_ac)
     {
+        //THIS FUNCTION IS WAY TOO MUCH
         int min = 1, max = m.type_of_dice;
         for (i=0; i <( m.num_dice); i++)
         {
-            dmg+= (rand() % (max - min +1)) + min;
+            dmg +=( (rand() % (max - min +1)) + min);
         }
         dmg += m.add_to_attack;
         printf("Nice shot! %d damage\n", dmg);
@@ -130,17 +149,21 @@ void create_new_monster()
 	scanf ("%d", &ata);
     m.add_to_attack = ata;
 
-    for( i= 0; i<100; i++)
+    printf("looking for spot for montster!\n");
+    if(num_monsters==0)
     {
-        MONSTER *e;
-        e = &monsters[i];
-        if (e==NULL)
-        {
-            monsters[i] = m;
-            return;
-        }
+        monsters[0] = m;
+        num_monsters++;
+        return;
     }
-
+    else //if (i==(num_monsters-1))
+    {
+        printf("found spot for montster @ %d!\n", i);
+        monsters[num_monsters] = m;
+        num_monsters++;
+        return;
+    }
+    printf("didn't find spot for monster!\n");
     return;
 }
 
@@ -151,7 +174,7 @@ int main (void)
     scanf ("%d", &party_ac);
 	while (1)
 	{
-		printf ("Choose an option:\n    1: see monsters\n   2: add new monster\n    0: exit\nEnter option: ");
+		printf ("Choose an option:\n    1: see monsters\n    2: add new monster\n    0: exit\nEnter option: ");
 		if (scanf ("%d", &option) != 1)
 		{
 			printf ("error\n");
