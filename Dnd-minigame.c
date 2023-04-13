@@ -20,53 +20,28 @@ const char north = '^';
 const char west = '<';
 const char south = 'v';
 const char east = '>';
-char directions[] = {north,west,south,east};
-int edges[2];
+const char directions[] = {north,west,south,east};
+
 //global variables
 typedef struct person 
 {
-    //initial x pos
 	int in_x;
-    //initial y pos
 	int in_y;
-
-    //current x pos
 	int cur_x;
-    //current y pos
 	int cur_y;
-
-    //current direction {union?:(1,2,3,4) (^,<,v,>)}
-	int cur_dir;
-
+	int cur_dir;//current direction {(1,2,3,4)=(^,<,v,>)}
 	int in_dir;
-
-	/*//are they playable?
-	bool is_playable_character;
-	*/
-	//instead of ^^, just put symbol that represents them
 	char rep[100];
-
-	// if they follow path differently like inversely or something, put it here
 	int relation_to_player; // 1= follows, 2= does opposite, 
-	//future: 3= waits one move and then does it?
 
 }PERSON;
 
-//don't they all need to be playable?
-
-// how to write a board that can be a certain length but isn't determined
-
 typedef struct board
 {
-    //length
 	int length;
-    //width
 	int width;
-    //num of people
 	int num_people;
-    //array of pointers to people max 10
 	PERSON people[MAX_PEOPLE];
-
 	/*	
 		future: 
 		the max # of people should be the amount of squares? 
@@ -84,8 +59,13 @@ typedef struct board
 //updates as what_is_here updates
 char representation[2]= {' ',' '};
 
+//updates as is_on_edge updates
+int edges[2];
+
 BOARD *boards[MAX_BOARDS];
+
 int num_boards;
+
 
 //functions
 void new_board();
@@ -98,6 +78,7 @@ void play(BOARD *B);
 void reset(BOARD *B);
 //bool is_in_range();
 void person_moves_forward(PERSON *P);
+int is_on_edge(BOARD *B, PERSON *P);
 
 void show_board(BOARD *B)
 {
@@ -120,13 +101,13 @@ int what_is_here(BOARD *B, int i, int j)
 	representation[1] = ' ';
 	int m;
 	int num_people_on_spot = 0;
-	for(m=0; m<= b->num_people; m++)
+	for(m=0; m<= B->num_people; m++)
 	{
-		if((B->people[m]->cur_x == i)&&(B->people[m]->cur_y == j))
+		if((B->people[m].cur_x == i)&&(B->people[m].cur_y == j))
 		{
 			num_people_on_spot++;
-			representation[0] = B->people[m]->rep;
-			representation[1] = B->people[m]->cur_dir;
+			representation[0] = B->people[m].rep[0];
+			representation[1] = directions[B->people[m].cur_dir];
 			return 1; // returns 1 if there's a person there
 			//could return num of people?
 		}
@@ -153,7 +134,7 @@ void new_board()
 		printf("no more saves for boards :(\n");
 	}
 
-	printf("How wide should the board be?",);
+	printf("How many columns should the board be?");
     fpurge(stdin);
 	scanf ("%d", &n_cols);
 	if(n_cols>0)
@@ -167,7 +148,7 @@ void new_board()
 		return;
 	}
 
-	printf("How wide should the board be?",);
+	printf("How many rows should the board be?");
     fpurge(stdin);
 	scanf ("%d", &n_rows);
 	if(n_rows>0)
@@ -289,9 +270,12 @@ void new_person(BOARD *B)
 		return;
 	}
 
-	P.in_x,P.cur_x = x_pos;
-	P.in_y, P.cur_y = y_pos;
-	P.in_dir, P.cur_dir = (direction-1);
+	P.in_x = x_pos;
+	P.cur_x = x_pos;
+	P.in_y = y_pos;
+	P.cur_y = y_pos;
+	P.in_dir = (direction-1);
+	P.cur_dir = (direction-1);
 
 	B->people[p4p] = P;
 	B->num_people++;
@@ -317,9 +301,9 @@ void print_demo_board(int num_rows, int num_cols)
 
 	printf("Demo Board: \n");
 
-	for(i=0;i<num_rows,i++)
+	for(i=0;i<num_rows;i++)
 	{
-		for(j=0;j<num_cols,j++)
+		for(j=0;j<num_cols;j++)
 		{
 			printf("[%d x %d] ", i, j);
 		}
@@ -350,13 +334,14 @@ void play(BOARD *B)
 {
 	int i, j, k = 0;
 	char direction;
+	char souf = 'v';
 	printf("choose which direction you'd like to move in and type in an answer whenever prompted with ">"\n    W: north (^)\n    A: west (<)\n    S: south (v)\n    D: east (>)\nTry not to get players to overlap!\nHave fun :)\n");
 
 	while(lose(B) != 0)
 	{
 		printf("\n>");
 		fpurge(stdin);
-		scanf("%s", direction);
+		scanf("%d", &direction);
 
 		switch(direction) {
 			case 'W':
@@ -474,7 +459,7 @@ int lose(BOARD *B)
 	{
 		for(j=0;j<(B->num_people);j++)
 		{
-			if(((B->people[i]->x_pos) == (B->people[j]->x_pos)) && ((B->people[i]->y_pos) == (B->people[j]->y_pos)))
+			if(((B->people[i]->cur_x) == (B->people[j]->cur_x)) && ((B->people[i]->cur_y) == (B->people[j]->cur_y)))
 			{
 				return 1;
 			}
@@ -488,8 +473,8 @@ void reset(BOARD *B)
 	int i =0;
 	for(i=0;i<(B->num_people);i++)
 	{
-		B->people[i]->x_pos = B->people[i]->in_x;
-		B->people[i]->y_pos = B->people[i]->in_y;
+		B->people[i]->cur_x = B->people[i]->in_x;
+		B->people[i]->cur_y = B->people[i]->in_y;
 	}
 	return;
 }
