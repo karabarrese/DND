@@ -96,7 +96,8 @@ void print_demo_board(int num_rows, int num_cols);
 void pick_board();
 void play(BOARD *B);
 void reset(BOARD *B);
-bool is_in_range();
+//bool is_in_range();
+void person_moves_forward(PERSON *P);
 
 void show_board(BOARD *B)
 {
@@ -347,7 +348,6 @@ void pick_board()
 
 void play(BOARD *B)
 {
-	
 	int i, j, k = 0;
 	char direction;
 	printf("choose which direction you'd like to move in and type in an answer whenever prompted with ">"\n    W: north (^)\n    A: west (<)\n    S: south (v)\n    D: east (>)\nTry not to get players to overlap!\nHave fun :)\n");
@@ -378,15 +378,18 @@ void move(BOARD *B, int dir)
 	int i;
 	for(i=0;i<B->num_people;i++)
 	{
-		switch(is_on_edge(B,B->people[i])){
+		PERSON *P = B->people[i];
+		switch(is_on_edge(B,P)){
 			case 0: //they aren't on an edge! Hooray
-				if (B->people[i]->cur_dir == dir)
+				if (P->cur_dir == dir)
 				{
+					person_moves_forward(P);
 					//person moves forward
 				}
 			case 1: //they're on one edge
-				if (((B->people[i]->cur_dir) == dir) && (dir!= edges[0]))
+				if (((P->cur_dir) == dir) && (dir!= edges[0]))
 				{
+					person_moves_forward(P);
 					//person moves forward
 				}
 				//else if direction within 1 of absolute value or something make it turn
@@ -394,6 +397,7 @@ void move(BOARD *B, int dir)
 			case 2://they're on 2 edges :(
 				if ((((B->people[i]->cur_dir) == dir) && (dir!= edges[0]))&&(dir!= edges[1]))
 				{
+					person_moves_forward(P);
 					//person moves forward
 				}
 			default:
@@ -446,7 +450,6 @@ int is_on_edge(BOARD *B, PERSON *P)
 		num_edges++;
 	}
 
-	
 	if(P->cur_y == 0)
 	{
 		edges[num_edges] = 2;
@@ -457,6 +460,7 @@ int is_on_edge(BOARD *B, PERSON *P)
 		edges[num_edges] = 3;
 		num_edges++;
 	}
+	//2 ifs because it shouldn't be on both x edges & y edges at the same time
 
 	return num_edges;
 }
@@ -488,6 +492,23 @@ void reset(BOARD *B)
 		B->people[i]->y_pos = B->people[i]->in_y;
 	}
 	return;
+}
+
+void person_moves_forward(PERSON *P)
+{
+	switch(P->cur_dir)
+	{
+		case 0://north
+			P->cur_y--;
+		case 1://west
+			P->cur_x--;
+		case 2://south
+			P->cur_y++;
+		case 3://east
+			P->cur_x++;
+		default:
+			printf("in default on person moves forward function\n this shouldn't happen\n");
+	}
 }
 
 //future list stuff might be needed

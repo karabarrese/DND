@@ -6,8 +6,8 @@
       "type": "lldb",
       "request": "launch",
       "args": [],
-      "cwd": "/Users/Kara/DND_Website/Website",
-      "program": "/Users/Kara/DND_Website/Website/build/Debug/outDebug"
+      "cwd": "/Users/Kara/DND_Website",
+      "program": "/Users/Kara/DND_Website/build/Debug/outDebug"
     }
   ]
 }
