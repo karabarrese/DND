@@ -378,30 +378,49 @@ void move(BOARD *B, int dir)
 	int i;
 	for(i=0;i<B->num_people;i++)
 	{
-		if(B->people[i]->cur_dir == dir)
-		{
-			//make it so that they go forward in whatever way
+		switch(is_on_edge(B,B->people[i])){
+			case 0: //they aren't on an edge! Hooray
+				if (B->people[i]->cur_dir == dir)
+				{
+					//person moves forward
+				}
+			case 1: //they're on one edge
+				if (((B->people[i]->cur_dir) == dir) && (dir!= edges[0]))
+				{
+					//person moves forward
+				}
+				//else if direction within 1 of absolute value or something make it turn
+				//call update cur_dir?
+			case 2://they're on 2 edges :(
+				if ((((B->people[i]->cur_dir) == dir) && (dir!= edges[0]))&&(dir!= edges[1]))
+				{
+					//person moves forward
+				}
+			default:
+				printf("In default in move switch case\n");
 		}
-		else if(B->people[i]->cur_dir==(dir-2)||)
-		/*
-			person = ^ (0)input = ^(0) : current y--;
-			person = < (1), person = >(3), input = ^(0): current dir = ^(0);
-			person = v (2)input = ^(0) : nothing happens;
-
-			person = v (2)input = v(2) : current y++;
-			person = < (1), person = >(3), input = v(2): current dir = v(2);
-			person = v (2)input = ^(0) : nothing happens;
-
-			person = < (1)input = <(1) : current x--;
-			person = ^ (0), person = v(2), input = <(1): current dir = <(1);
-			person = > (3)input = <(1) : nothing happens;
-
-			person = > (3)input = >(3) : current x++;
-			person = ^ (0), person = v(2), input = >(3): current dir = >(3);
-			person = < (1)input = >(3) : nothing happens;
-			
-		*/
 	}
+
+	//make it so that they go forward in whatever way
+
+	/*
+		person = ^ (0)input = ^(0) : current y--;
+		person = < (1), person = >(3), input = ^(0): current dir = ^(0);
+		person = v (2)input = ^(0) : nothing happens;
+
+		person = v (2)input = v(2) : current y++;
+		person = < (1), person = >(3), input = v(2): current dir = v(2);
+		person = v (2)input = ^(0) : nothing happens;
+
+		person = < (1)input = <(1) : current x--;
+		person = ^ (0), person = v(2), input = <(1): current dir = <(1);
+		person = > (3)input = <(1) : nothing happens;
+
+		person = > (3)input = >(3) : current x++;
+		person = ^ (0), person = v(2), input = >(3): current dir = >(3);
+		person = < (1)input = >(3) : nothing happens;
+		
+	*/
 }
 //returns how many edges they are on and updates edges with which edges they are on
 int is_on_edge(BOARD *B, PERSON *P)
