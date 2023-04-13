@@ -16,11 +16,12 @@
 // defines
 const int MAX_PEOPLE = 10; // somehow try and get the struct to use this instead of 10 for length?
 const int MAX_BOARDS = 10;
-char north = '^';
-char east = '>';
-char south = 'v';
-char west = '<';
-
+const char north = '^';
+const char west = '<';
+const char south = 'v';
+const char east = '>';
+char directions[] = {north,west,south,east};
+int edges[2];
 //global variables
 typedef struct person 
 {
@@ -34,10 +35,10 @@ typedef struct person
     //current y pos
 	int cur_y;
 
-    //current direction {union?:(1,2,3,4) (^,>,v,<)}
-	char cur_dir;
+    //current direction {union?:(1,2,3,4) (^,<,v,>)}
+	int cur_dir;
 
-	char in_dir;
+	int in_dir;
 
 	/*//are they playable?
 	bool is_playable_character;
@@ -80,6 +81,7 @@ typedef struct board
 	*/
 }BOARD;
 
+//updates as what_is_here updates
 char representation[2]= {' ',' '};
 
 BOARD *boards[MAX_BOARDS];
@@ -94,6 +96,7 @@ void print_demo_board(int num_rows, int num_cols);
 void pick_board();
 void play(BOARD *B);
 void reset(BOARD *B);
+bool is_in_range();
 
 void show_board(BOARD *B)
 {
@@ -102,12 +105,14 @@ void show_board(BOARD *B)
 	{
 		for(j=0;j<(B->width);j++)
 		{
+			what_is_here(B,i,j); // should update global representation variable
 			printf("[%s] ", representation);
 		}
 		printf("\n");
 	}
 }
 
+//returns # of people on the spot
 int what_is_here(BOARD *B, int i, int j)
 {
 	representation[0] = ' ';
@@ -199,7 +204,7 @@ void new_person(BOARD *B)
 	int x_pos, y_pos, direction, representation, rel_to_player, make_more;
 	int n_rows = B->length;
 	int n_cols = B->width;
-	int n_people_place = (B -> num_people)-1;
+	int p4p = (B -> num_people)-1; //p4p = place for person
 
 	if((B->num_people)==MAX_PEOPLE)
 	{
@@ -208,7 +213,7 @@ void new_person(BOARD *B)
 	}
 	else if ((B->num_people) == 0)
 	{
-		n_people_place = 0;
+		p4p = 0;
 	}
 	
 
@@ -272,43 +277,22 @@ void new_person(BOARD *B)
 	fpurge(stdin);
 	scanf("%d", &P.relation_to_player);
 
-	printf("What direction are they starting off in?\n    1: north (^)\n    2: east (>)\n    3: south (v)\n    4: west (<)\n");
+	printf("What direction are they starting off in?\n    1: north (^)\n    2: west (<)\n    3: south (v)\n    4: east (>)\n");
 	fpurge(stdin);
-	scanf("%d", &rel_to_player);
+	scanf("%d", &direction);
 	
-	if((rel_to_player<0) || (rel_to_player>5))
+	if((direction<=0) || (direction>4))
 	{
 		printf("That's not a valid direction, please pick a number from 1-4!\n");
 		new_person(B);
 		return;
 	}
 
-	P.in_x = x_pos;
-	P.cur_x = x_pos;
-	P.in_y = y_pos;
-	P.cur_y = y_pos;
+	P.in_x,P.cur_x = x_pos;
+	P.in_y, P.cur_y = y_pos;
+	P.in_dir, P.cur_dir = (direction-1);
 
-	//i think it might be simpler to store a value and then read if it's within 2 spaces of the value
-	switch(rel_to_player){
-		case 1:
-			P.in_dir = '^';
-			P.cur_dir = '^';
-		case 2:
-			P.in_dir = '>';
-			P.cur_dir = '>';
-		case 3:
-			P.in_dir = 'v';
-			P.cur_dir = 'v';
-		case 4:
-			P.in_dir = '<';
-			P.cur_dir = '<';
-		default:
-			printf('no valid direction? setting to '^'\n');
-			P.in_dir = '^';
-			P.cur_dir = '^';
-	}
-
-	B->people[n_people_place] = P;
+	B->people[p4p] = P;
 	B->num_people++;
 
 	printf("Do you want to make another person? (1 = yes, 2 = no):\n");
@@ -358,7 +342,6 @@ void pick_board()
 	fpurge(stdin);
 	scanf("%d", &brd);
 
-	printf("choose which direction you'd like to move in and type in an answer whenever prompted with ">"\n    W: north (^)\n    A: west (<)\n    S: south (v)\n    D: east (>)\nTry not to get players to overlap!\nHave fun :)\n");
 	play(boards[brd-1]);
 }
 
@@ -367,6 +350,7 @@ void play(BOARD *B)
 	
 	int i, j, k = 0;
 	char direction;
+	printf("choose which direction you'd like to move in and type in an answer whenever prompted with ">"\n    W: north (^)\n    A: west (<)\n    S: south (v)\n    D: east (>)\nTry not to get players to overlap!\nHave fun :)\n");
 
 	while(lose(B) != 0)
 	{
@@ -376,93 +360,86 @@ void play(BOARD *B)
 
 		switch(direction) {
 			case 'W':
-				move(B,north);
+				move(B,0);//north
 			case 'A':
-				move(B,east);
+				move(B,1);//west
 			case 'S':
-				move(B,south);
+				move(B,2);//south
 			case 'D':
-				move(B,west);
+				move(B,3);//east
 			default:
 				printf("invalid input\n");
 		}
 	}
 }
 
-void forward(BOARD *B, char direction)
+void move(BOARD *B, int dir)
 {
 	int i;
 	for(i=0;i<B->num_people;i++)
 	{
-		//if direction matches B->people[i]->cur_dir
+		if(B->people[i]->cur_dir == dir)
+		{
+			//make it so that they go forward in whatever way
+		}
+		else if(B->people[i]->cur_dir==(dir-2)||)
+		/*
+			person = ^ (0)input = ^(0) : current y--;
+			person = < (1), person = >(3), input = ^(0): current dir = ^(0);
+			person = v (2)input = ^(0) : nothing happens;
+
+			person = v (2)input = v(2) : current y++;
+			person = < (1), person = >(3), input = v(2): current dir = v(2);
+			person = v (2)input = ^(0) : nothing happens;
+
+			person = < (1)input = <(1) : current x--;
+			person = ^ (0), person = v(2), input = <(1): current dir = <(1);
+			person = > (3)input = <(1) : nothing happens;
+
+			person = > (3)input = >(3) : current x++;
+			person = ^ (0), person = v(2), input = >(3): current dir = >(3);
+			person = < (1)input = >(3) : nothing happens;
+			
+		*/
 	}
-		/*//if(strcmp(B->people[i]->cur_dir,north) == 0)
-		//north
-		if(strcmp(B->people[i]->cur_dir,direction) == 0)
-		{
-			if((B->people[i]->cur_y)>0) && (B->people[i]->cur_y)<=((B->length))
-			{
-				B->people[i]->cur_y--;
-			}
-		}
-		else if(strcmp(B->people[i]->cur_dir, direction) == 0) //south
-		{
-			if(((B->people[i]->cur_y)>=0) && (B->people[i]->cur_y)<((B->length)-1))
-			{
-				B->people[i]->cur_y++;
-			}
-		}
-		else if(strcmp(B->people[i]->cur_dir,east) == 0)
-		{
-			if(((B->people[i]->cur_x)>=0) && (B->people[i]->cur_y)<((B->width)-1))
-			{
-				B->people[i]->cur_y++;
-			}
-		}
-		else if(strcmp(B->people[i]->cur_dir,west) == 0)
-		{
-			if(((B->people[i]->cur_x)>0) && (B->people[i]->cur_x)<((B->width)))
-			{
-				B->people[i]->cur_x--;
-			}
-		}
-
-
-	}*/
-	/*for(i=0;i<B->num_people;i++)
-	{
-		switch(B->people[i]->cur_dir)
-		{
-			case '^':
-				if(((B->people[i]->cur_y)>0) && (B->people[i]->cur_y)<=((B->length)))
-				{
-					B->people[i]->cur_y--;
-				}
-			/*case 'v':
-				if(((B->people[i]->cur_y)>=0) && (B->people[i]->cur_y)<((B->length)-1))
-				{
-					B->people[i]->cur_y++;
-				}
-			case '<':
-				if(((B->people[i]->cur_x)>0) && (B->people[i]->cur_x)<((B->width)))
-				{
-					B->people[i]->cur_x--;
-				}
-			case '>':
-				if(((B->people[i]->cur_x)>=0) && (B->people[i]->cur_y)<((B->width)-1))
-				{
-					B->people[i]->cur_y++;
-				}*/
-			case '<':
-				B->people[i]->cur_dir = '^';
-			case '>':
-				B -> people[i]->cur_dir = '^';
-			default:
-				printf("doesn't have an arrow?\n");
-		}
-
-	}
+}
+//returns how many edges they are on and updates edges with which edges they are on
+int is_on_edge(BOARD *B, PERSON *P)
+{
+	/*
+		north edge = 0
+		west edge = 1
+		south edge = 2
+		east edge = 3
 	*/
+			
+	// idk if this function will work if 4 edges touch
+	int num_edges = 0;
+
+	if(P->cur_x == 0)
+	{
+		edges[num_edges]= 0;
+		num_edges++;
+	}
+	else if(P->cur_x == ((B->width)-1))
+	{
+		edges[num_edges] = 3;
+		num_edges++;
+	}
+
+	
+	if(P->cur_y == 0)
+	{
+		edges[num_edges] = 2;
+		num_edges++;
+	}
+	else if(P->cur_y == ((B->length)-1))
+	{
+		edges[num_edges] = 3;
+		num_edges++;
+	}
+
+	return num_edges;
 }
 
 //checks to see if there is more than one person on a spot
