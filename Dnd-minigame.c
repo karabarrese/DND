@@ -257,11 +257,18 @@ void new_person(BOARD *B)
 		printf("valid input");
 	}
 
+	if(what_is_here(B,x_pos,y_pos)!=0)
+	{
+		printf("There's already a person on that spot! Try again:\n");
+		new_person(B);
+		return;
+	}
+
 	printf("What symbol would you like to represent the person?:\n");
     fpurge(stdin);
 	scanf ("%s", P.rep);
 
-	printf("What is this person?\n    1: they follow the inputs\n    2: they go opposite from the main person\n");
+	printf("What does this person do?\n    1: they follow the inputs\n    2: they go opposite from the main person\n");
 	fpurge(stdin);
 	scanf("%d", &P.relation_to_player);
 
