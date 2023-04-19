@@ -334,9 +334,9 @@ void play(BOARD *B)
 {
 	int i, j, k = 0;
 	char direction;
-	char souf = 'v';
+	//char souf = 'v';
 	printf("choose which direction you'd like to move in and type in an answer whenever prompted with ">"\n    W: north (^)\n    A: west (<)\n    S: south (v)\n    D: east (>)\nTry not to get players to overlap!\nHave fun :)\n");
-
+	
 	while(lose(B) != 0)
 	{
 		printf("\n>");
